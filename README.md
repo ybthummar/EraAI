@@ -25,11 +25,11 @@ A powerful and intelligent career coaching platform that leverages AI to help us
 
 ### 📝 Upload Interface
 
-![Resume Upload 1](assets/YUGTHUMMAR.pdf)
+[Resume Upload 1](assets/YUGTHUMMAR.pdf)
 
 --- 
 
-![Resume Upload 2](assets/FSWD.pdf)
+[Resume Upload 2](assets/FSWD.pdf)
 
 ### ✅ Prediction Result
 
