@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String           @id @default(uuid())
+  clerkUserId     String           @unique
+  email           String           @unique
+  name            String? // ? <- this means optional
+  imageUrl        String?
+  industry        String? // Combined industry-subindustry (e.g."tech-software-developement")
+  industryInsight industryInsight? @relation(fields: [industry], references: [industry])
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  //Profile fields
+  bio        String?
+  experience Int? // Years of Experience
+  skills     String[] // Array of Skills
+
+  Assessment  Assessment[] // Fixed: Use singular model name
+  resume      Resume?
+  coverLetter CoverLetter[]
+}
+
+model Assessment {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+  quizScore      Float // Overall quiz score
+  questions      Json[] // Array of {question, answer, userAnswer, isCorrect}
+  category       String // "Technical", "Behavioral", etc.
+  improvementTip String? // AI-generated improvement tip
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Resume {
+  id        String   @id @default(cuid())
+  userId    String   @unique // One resume per user
+  user      User     @relation(fields: [userId], references: [id])
+  content   String   @db.Text // Markdown content
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CoverLetter {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+  content        String // Markdown content
+  jobDescription String? // Job description for context
+  companyName    String // Name of the company applying to
+  jobTitle       String // Position applying for
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model industryInsight {
+  id       String @id @default(cuid())
+  industry String @unique // the industry this data belongs to (e.g., "tech-software-development")
+
+  // Users in the industry 
+  users User[]
+
+  // Salary data
+  salaryRanges Json[] // Array of { role: string, min: float, max: float, median: float, location: String? }
+
+  // Industry trends
+  growthRate  Float
+  demandlevel String // "High", "Medium", "Low"
+  topSkills   String[] // Most in-demand skills
+
+  // Market conditions
+  marketOutlook String // "Positive", "Neutral", "Negative"
+  keyTrends     String[] // Array of current industry trends
+
+  // Learning suggestions
+  recommendedSkills String[] // Skills recommended for the industry 
+
+  lastUpdated DateTime @default(now())
+  nextUpdate  DateTime // Scheduled update time
+
+  @@index([industry])
+}
+
+enum DemandLevel {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum MarketOutlook {
+  POSITIVE
+  NEUTRAL
+  NEGATIVE
+}
