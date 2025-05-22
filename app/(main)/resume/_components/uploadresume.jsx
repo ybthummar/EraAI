@@ -32,16 +32,31 @@ export default function UploadResume() {
       const formData = new FormData();
       formData.append("file", file);
 
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 seconds timeout
+
       const res = await fetch(
         "https://resumeanalyzer-eraai.up.railway.app/predict",
         {
           method: "POST",
           body: formData,
+          signal: controller.signal,
         }
       );
 
+      clearTimeout(timeoutId);
+
       if (!res.ok) {
-        throw new Error(`Server error: ${res.statusText}`);
+        // Try to extract error message from response body if any
+        let errorMsg = `Server error: ${res.status} ${res.statusText}`;
+        try {
+          const errorData = await res.json();
+          if (errorData.detail) errorMsg += ` - ${errorData.detail}`;
+          else if (errorData.error) errorMsg += ` - ${errorData.error}`;
+        } catch {
+          // ignore JSON parsing errors
+        }
+        throw new Error(errorMsg);
       }
 
       const data = await res.json();
@@ -51,7 +66,16 @@ export default function UploadResume() {
         setError("No prediction received.");
       }
     } catch (err) {
-      setError(err.message || "Failed to get prediction");
+      // Distinguish abort errors (timeout) from network errors and others
+      if (err.name === "AbortError") {
+        setError("Request timed out. Please try again.");
+      } else if (err.message === "Failed to fetch") {
+        setError(
+          "Network error or CORS issue: Could not reach the server. Check your internet or server configuration."
+        );
+      } else {
+        setError(err.message || "Failed to get prediction");
+      }
     } finally {
       setLoading(false);
     }
