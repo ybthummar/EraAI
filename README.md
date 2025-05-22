@@ -1,4 +1,4 @@
-# EraAI - Full Stack AI Career Coach
+# EraAI - AI Career Assistant
 
 A powerful and intelligent career coaching platform that leverages AI to help users navigate their career paths. Built with modern full-stack technologies, EraAI provides resume analysis, personalized career guidance, job matching, and more.
 
