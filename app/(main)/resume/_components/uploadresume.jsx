@@ -32,10 +32,13 @@ export default function UploadResume() {
       const formData = new FormData();
       formData.append("file", file);
 
-      const res = await fetch("http://localhost:8000/predict", {
-        method: "POST",
-        body: formData,
-      });
+      const res = await fetch(
+        "https://resumeanalyzer-eraai.up.railway.app/predict",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       if (!res.ok) {
         throw new Error(`Server error: ${res.statusText}`);
