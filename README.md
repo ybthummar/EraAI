@@ -202,10 +202,3 @@ Made with 💡 by **Yug Thummar**
 🔗 [GitHub: ybthummar](https://github.com/ybthummar)
 
 > EraAI is designed to supercharge your career — let AI lead the way 🚀
----
-
-Let me know if you want me to generate the screenshots (mockups) or help you deploy your Flask backend to Render/Railway so it's accessible from Vercel.
-```
-
-
-
