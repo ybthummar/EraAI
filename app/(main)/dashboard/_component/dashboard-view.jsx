@@ -29,12 +29,14 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 
 const DashboardView = ({ insights }) => {
-  // Transform salary data for the chart
+  const USD_TO_INR = 15; // Conversion rate
+
+  // Transform salary data to INR in thousands
   const salaryData = insights.salaryRanges.map((range) => ({
     name: range.role,
-    min: range.min / 1000,
-    max: range.max / 1000,
-    median: range.median / 1000,
+    min: Math.round((range.min * USD_TO_INR) / 1000),
+    median: Math.round((range.median * USD_TO_INR) / 1000),
+    max: Math.round((range.max * USD_TO_INR) / 1000),
   }));
 
   const getDemandLevelColor = (level) => {
@@ -66,7 +68,6 @@ const DashboardView = ({ insights }) => {
   const OutlookIcon = getMarketOutlookInfo(insights.marketOutlook).icon;
   const outlookColor = getMarketOutlookInfo(insights.marketOutlook).color;
 
-  // Format dates using date-fns
   const lastUpdatedDate = format(new Date(insights.lastUpdated), "dd/MM/yyyy");
   const nextUpdateDistance = formatDistanceToNow(
     new Date(insights.nextUpdate),
@@ -83,24 +84,20 @@ const DashboardView = ({ insights }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Market Outlook
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Market Outlook</CardTitle>
             <OutlookIcon className={`h-4 w-4 ${outlookColor}`} />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{insights.marketOutlook}</div>
             <p className="text-xs text-muted-foreground">
-              Next update {nextUpdateDistance}
+              Last updated {nextUpdateDistance} 
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Industry Growth
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Industry Growth</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -148,7 +145,7 @@ const DashboardView = ({ insights }) => {
         <CardHeader>
           <CardTitle>Salary Ranges by Role</CardTitle>
           <CardDescription>
-            Displaying minimum, median, and maximum salaries (in thousands)
+            Displaying minimum, median, and maximum salaries (in ₹ thousands)
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -166,7 +163,7 @@ const DashboardView = ({ insights }) => {
                           <p className="font-medium">{label}</p>
                           {payload.map((item) => (
                             <p key={item.name} className="text-sm">
-                              {item.name}: ${item.value}K
+                              {item.name}: ₹{item.value}K
                             </p>
                           ))}
                         </div>
@@ -175,9 +172,9 @@ const DashboardView = ({ insights }) => {
                     return null;
                   }}
                 />
-                <Bar dataKey="min" fill="#94a3b8" name="Min Salary (K)" />
-                <Bar dataKey="median" fill="#64748b" name="Median Salary (K)" />
-                <Bar dataKey="max" fill="#475569" name="Max Salary (K)" />
+                <Bar dataKey="min" fill="#94a3b8" name="Min Salary" />
+                <Bar dataKey="median" fill="#64748b" name="Median Salary" />
+                <Bar dataKey="max" fill="#475569" name="Max Salary" />
               </BarChart>
             </ResponsiveContainer>
           </div>
