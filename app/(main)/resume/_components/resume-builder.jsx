@@ -305,8 +305,68 @@ export default function ResumeBuilder({ initialContent }) {
               )}
             </div>
 
-            {/* Experience, Education, Projects — You can add similar sections/components here */}
-            {/* For brevity, I have omitted those here */}
+            {/* Work Experience */}
+            <div>
+              <h3 className="text-lg font-medium">Work Experience</h3>
+              <Controller
+                control={control}
+                name="experience"
+                render={({ field }) => (
+                  <EntryForm
+                    entries={field.value}
+                    onChange={field.onChange}
+                    type="experience"
+                  />
+                )}
+              />
+              {errors.experience && (
+                <p className="text-sm text-red-500">
+                  {errors.experience.message}
+                </p>
+              )}
+            </div>
+
+            {/* Education */}
+            <div>
+              <h3 className="text-lg font-medium">Education</h3>
+              <Controller
+                control={control}
+                name="education"
+                render={({ field }) => (
+                  <EntryForm
+                    entries={field.value}
+                    onChange={field.onChange}
+                    type="education"
+                  />
+                )}
+              />
+              {errors.education && (
+                <p className="text-sm text-red-500">
+                  {errors.education.message}
+                </p>
+              )}
+            </div>
+
+            {/* Projects */}
+            <div>
+              <h3 className="text-lg font-medium">Projects</h3>
+              <Controller
+                control={control}
+                name="projects"
+                render={({ field }) => (
+                  <EntryForm
+                    entries={field.value}
+                    onChange={field.onChange}
+                    type="projects"
+                  />
+                )}
+              />
+              {errors.projects && (
+                <p className="text-sm text-red-500">
+                  {errors.projects.message}
+                </p>
+              )}
+            </div>
 
             <Button type="submit" className="mt-4" disabled={isSaving}>
               {isSaving ? "Saving..." : "Save Resume"}
