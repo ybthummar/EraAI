@@ -2,7 +2,7 @@
 
 A powerful and intelligent career coaching platform that leverages AI to help users navigate their career paths. Built with modern full-stack technologies, EraAI provides resume analysis, personalized career guidance, job matching, and more.
 
-🌐 **Live Demo**: [https://era-ai-iota.vercel.app/](https://era-ai-iota.vercel.app/)
+🌐 **Live Demo**: [https://era-ai-iota.vercel.app/](https://era-ai-in.vercel.app/)
 
 ---
 
