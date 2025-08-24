@@ -6,7 +6,18 @@ import {
   FileCheck2,
   Loader2,
   AlertCircle,
+  FileText,
+  Brain,
 } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 
 export default function UploadResume() {
   const [file, setFile] = useState(null);
@@ -32,30 +43,21 @@ export default function UploadResume() {
       const formData = new FormData();
       formData.append("file", file);
 
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 seconds timeout
-
       const res = await fetch(
         "https://resumeanalyzer-eraai.up.railway.app/predict",
         {
           method: "POST",
           body: formData,
-          signal: controller.signal,
         }
       );
 
-      clearTimeout(timeoutId);
-
       if (!res.ok) {
-        // Try to extract error message from response body if any
         let errorMsg = `Server error: ${res.status} ${res.statusText}`;
         try {
           const errorData = await res.json();
           if (errorData.detail) errorMsg += ` - ${errorData.detail}`;
           else if (errorData.error) errorMsg += ` - ${errorData.error}`;
-        } catch {
-          // ignore JSON parsing errors
-        }
+        } catch {}
         throw new Error(errorMsg);
       }
 
@@ -66,104 +68,94 @@ export default function UploadResume() {
         setError("No prediction received.");
       }
     } catch (err) {
-      // Distinguish abort errors (timeout) from network errors and others
-      if (err.name === "AbortError") {
-        setError("Request timed out. Please try again.");
-      } else if (err.message === "Failed to fetch") {
-        setError(
-          "Network error or CORS issue: Could not reach the server. Check your internet or server configuration."
-        );
-      } else {
-        setError(err.message || "Failed to get prediction");
-      }
+      setError(err.message || "Failed to get prediction");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-md mx-auto p-4 space-y-4 border rounded shadow">
-      <label
-        htmlFor="resume-upload"
-        className="flex cursor-pointer items-center justify-center gap-2 rounded border border-dashed border-gray-400 p-6 text-gray-600 hover:border-blue-500 hover:text-blue-500 transition"
-      >
-        <Upload className="h-6 w-6" />
-        <span>
-          {file ? file.name : "Click to select your resume (PDF, DOCX)"}
-        </span>
-        <input
-          id="resume-upload"
-          type="file"
-          accept=".pdf,.doc,.docx"
-          className="hidden"
-          onChange={handleFileChange}
-        />
-      </label>
+    <div className="max-w-3xl mx-auto space-y-6 p-6">
+      <p className="text-center text-muted-foreground max-w-lg mx-auto">
+        Upload your resume and let our AI analyze it for strengths, weaknesses, 
+        and potential career fit.
+      </p>
 
-      <button
-        onClick={handleUpload}
-        disabled={!file || loading}
-        className={`w-full rounded bg-blue-600 px-4 py-2 font-semibold text-white transition ${
-          loading ? "cursor-wait opacity-70" : "hover:bg-blue-700"
-        }`}
-      >
-        {loading ? (
-          <>
-            <Loader2 className="inline-block h-5 w-5 animate-spin mr-2" />
-            Analyzing...
-          </>
-        ) : (
-          "Analyze Resume"
-        )}
-      </button>
+      <Card className="shadow-lg border rounded-2xl">
+        <CardHeader className="flex flex-col items-center gap-2">
+          <Upload className="h-10 w-10 text-blue-600" />
+          <CardTitle>Upload Resume</CardTitle>
+          <CardDescription>
+            Supported formats: PDF, DOCX
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col items-center space-y-4">
+          <label
+            htmlFor="resume-upload"
+            className="flex cursor-pointer items-center justify-center w-full gap-2 rounded-lg border border-dashed border-gray-400 p-6 text-gray-600 hover:border-blue-500 hover:text-blue-500 transition"
+          >
+            <FileText className="h-6 w-6" />
+            <span>{file ? file.name : "Click to select your resume"}</span>
+            <input
+              id="resume-upload"
+              type="file"
+              accept=".pdf,.doc,.docx"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+          </label>
 
-      {/* Result Section */}
+          <button
+            onClick={handleUpload}
+            disabled={!file || loading}
+            className={`w-full rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition shadow-md ${
+              loading ? "cursor-wait opacity-70" : "hover:bg-blue-700"
+            }`}
+          >
+            {loading ? (
+              <>
+                <Loader2 className="inline-block h-5 w-5 animate-spin mr-2" />
+                Analyzing...
+              </>
+            ) : (
+              "Analyze Resume"
+            )}
+          </button>
+        </CardContent>
+      </Card>
+
+      {/* Results Section */}
       {prediction && (
-        <div className="flex items-center gap-2 rounded border border-green-500 bg-green-100 p-3 text-green-800 font-semibold animate-fadeIn">
-          <FileCheck2 className="h-6 w-6" />
-          <span>Analysis Result: {prediction}</span>
-        </div>
+        <Card className="border-green-500 bg-green-50">
+          <CardHeader className="flex flex-row items-center gap-2">
+            <FileCheck2 className="h-6 w-6 text-green-600" />
+            <CardTitle>Analysis Result</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-lg font-semibold text-green-700">
+              Career Fit: <Badge variant="outline">{prediction}</Badge>
+            </div>
+            <div className="mt-3">
+              <Progress value={80} className="h-2 bg-green-200" />
+              <p className="text-xs text-gray-500 mt-1">
+                AI confidence score (demo value)
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {error && (
-        <div className="flex items-center gap-2 rounded border border-red-500 bg-red-100 p-3 text-red-700 font-semibold animate-shake">
-          <AlertCircle className="h-6 w-6" />
-          <span>Error: {error}</span>
-        </div>
+        <Card className="border-red-500 bg-red-50">
+          <CardHeader className="flex flex-row items-center gap-2">
+            <AlertCircle className="h-6 w-6 text-red-600" />
+            <CardTitle>Error</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-red-700 font-medium">{error}</p>
+          </CardContent>
+        </Card>
       )}
-
-      <style jsx>{`
-        .animate-fadeIn {
-          animation: fadeIn 0.8s ease forwards;
-        }
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(5px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-shake {
-          animation: shake 0.5s ease;
-        }
-        @keyframes shake {
-          0%,
-          100% {
-            transform: translateX(0);
-          }
-          20%,
-          60% {
-            transform: translateX(-5px);
-          }
-          40%,
-          80% {
-            transform: translateX(5px);
-          }
-        }
-      `}</style>
     </div>
   );
 }
